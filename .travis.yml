@@ -1,7 +1,7 @@
 language: node_js
 node_js:
 - '6'
-script: npm test && npm package
+script: npm test && npm run package
 before_deploy:
   - git config --local user.name "Alexey Balchunas"
   - git config --local user.email "bleshik@gmail.com"
