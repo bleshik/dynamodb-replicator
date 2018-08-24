@@ -59,3 +59,8 @@ typings/
 
 # next.js build output
 .next
+
+.awcache/
+build/
+package-lock.json
+yarn.lock
