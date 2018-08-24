@@ -1,3 +1,7 @@
+language: node_js
+node_js:
+- '6'
+script: npm test && npm package
 before_deploy:
   - git config --local user.name "Alexey Balchunas"
   - git config --local user.email "bleshik@gmail.com"
@@ -8,5 +12,3 @@ deploy:
     secure: "oRY4p0sySYo0br1SKPeaKNxmlnGhvxghswMBSyarsSo1KUUSReMgmSI71vJKc4EkRLoWdCVHHr9QZ+x6ybq/1CYoh4szDkDxqoAMOVB2WA/fCVcOvzCI1lEkSB/k0N3zsaKoILyfIVr5htxQuSGvxz6mEDo40Bq8gd6PcsqWUX7WY2dAepSxhKlAF+7prvKnx2MEBIuY7lzoUGkHYOQGvFul+51YVR7U45byqFhHxdsubouxAEQ1lVhrHR6cMrx436uXiemuuTq4jXJ6LJyLz0FtDzA7GDPo3OlcEBXEfpn8oLn2zRGAHTXnXR4sSY2VSBehYVV4XZxeGUhjbi/d+G6bzOeJmgCBcPgb6mgywxljMXLnR/aRw6pFzQu4Ep6QAA5i38aGDEwyX8f/IuPm+A8LawkPwTe0uKw3FD+WH3RhUVAY5gjAco0aVBFlrqZfd+cPi29Gzmzwiq8M4ijw4JJ2O03tGLWGYbaU3uqvKuljJT3P8KAe1RrPRihKg0hY6mvSrjC3nZmz8lRyH+Q29T0YV82HYcGVw4irx+s9ZAeLj3fB0Kzrhaqej6WeC/3c55+eu3OtRx1kojtvs+Wz/s7m/TiQLlfePrU1S9JUQBoDG4Nlbnkt34hs9CDToZwHG017DVKLBstk7b70KyehtqOzkkPpY4RXx3npm6HYkqY="
   file: "./build/dist/package.zip"
   skip_cleanup: true
-language: node_js
-script: npm test && npm package
