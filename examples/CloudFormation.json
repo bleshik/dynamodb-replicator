@@ -1,0 +1,168 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "DynamoDbReplicator application stack",
+    "Parameters": {
+        "ReplicatorBucket": {
+            "Default": "bleshik",
+            "Description": "S3 bucket where the replicator package is located",
+            "Type": "String"
+        },
+        "ReplicatorKey": {
+            "Default": "dynamodb-replicator.zip",
+            "Description": "S3 key where the replicator package is located",
+            "Type": "String"
+        },
+        "Regions": {
+            "Default": "eu-west-1,ap-southeast-1",
+            "Description": "All the regions where tables got replicated, comma-separated",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "DynamoDbReplicator": {
+            "Properties": {
+                "Code": {
+                    "S3Bucket": {
+                        "Ref": "ReplicatorBucket"
+                    },
+                    "S3Key": {
+                        "Ref": "ReplicatorKey"
+                    }
+                },
+                "Environment": {
+                    "Variables": {
+                        "REGIONS": {
+                            "Fn::Sub": "${Regions}"
+                        }
+                    }
+                },
+                "FunctionName": "DynamoDbReplicator",
+                "Handler": "index.handler",
+                "MemorySize": 256,
+                "Role": {
+                    "Fn::GetAtt": [
+                        "DynamoDbReplicatorRole",
+                        "Arn"
+                    ]
+                },
+                "Runtime": "nodejs6.10",
+                "Timeout": 60
+            },
+            "Type": "AWS::Lambda::Function"
+        },
+        "DynamoDbReplicatorRole": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "sts:AssumeRole"
+                            ],
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "lambda.amazonaws.com"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyDocument": {
+                            "Statement": [
+                                {
+                                    "Action": [
+                                        "logs:CreateLogGroup",
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents"
+                                    ],
+                                    "Effect": "Allow",
+                                    "Resource": "*"
+                                }
+                            ]
+                        },
+                        "PolicyName": "DynamoDbReplicatorNotificationPolicy"
+                    },
+                    {
+                        "PolicyDocument": {
+                            "Statement": [
+                                {
+                                    "Action": [
+                                        "dynamodb:*"
+                                    ],
+                                    "Effect": "Allow",
+                                    "Resource": "*"
+                                }
+                            ]
+                        },
+                        "PolicyName": "DynamoDbReplicatorReplicationPolicy"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "PermissionForDynamoDbToInvokeDynamoDbReplicator": {
+            "DependsOn": [
+                "DynamoDbReplicator"
+            ],
+            "Properties": {
+                "Action": "lambda:InvokeFunction",
+                "FunctionName": {
+                    "Ref": "DynamoDbReplicator"
+                },
+                "Principal": "dynamodb.amazonaws.com"
+            },
+            "Type": "AWS::Lambda::Permission"
+        },
+        "Table": {
+            "DependsOn": [
+                "DynamoDbReplicator",
+                "PermissionForDynamoDbToInvokeDynamoDbReplicator"
+            ],
+            "Properties": {
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "key",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "key",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "ProvisionedThroughput": {
+                    "ReadCapacityUnits": "1",
+                    "WriteCapacityUnits": "1"
+                },
+                "StreamSpecification": {
+                    "StreamViewType": "NEW_IMAGE"
+                },
+                "TableName": "Table"
+            },
+            "Type": "AWS::DynamoDB::Table"
+        },
+        "TableStream": {
+            "Properties": {
+                "BatchSize": 1,
+                "Enabled": true,
+                "EventSourceArn": {
+                    "Fn::GetAtt": [
+                        "Table",
+                        "StreamArn"
+                    ]
+                },
+                "FunctionName": {
+                    "Fn::GetAtt": [
+                        "DynamoDbReplicator",
+                        "Arn"
+                    ]
+                },
+                "StartingPosition": "LATEST"
+            },
+            "Type": "AWS::Lambda::EventSourceMapping"
+        }
+    }
+}
