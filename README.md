@@ -13,8 +13,7 @@ Here how you may do this with dynamodb-replicator (the image illustrates the cas
 
 ## Examples
 You can take a look at a dummy example where a single DynamoDB table called "Table" is replicated.
-Here is (a CloudFormation.json template for this particular example)[https://github.com/bleshik/dynamodb-replicator/blob/master/examples/CloudFormation.json].
+Here is [a CloudFormation.json template for this particular example](https://github.com/bleshik/dynamodb-replicator/blob/master/examples/CloudFormation.json).
 
-## Why won't you just use DynamoDB Global Tables
-For the background behind this little library and why you would want to use it, check out this article: (How To Easily Replicate DynamoDB Across Regions)[https://medium.com/@AlexeyBalchunas/how-to-easily-replicate-dynamodb-across-regions-fee349b736d7].
-
+## Why won't you just use DynamoDB Global Tables?
+For the background behind this little library and why you would want to use it, check out this article: [How To Easily Replicate DynamoDB Across Regions](https://medium.com/@AlexeyBalchunas/how-to-easily-replicate-dynamodb-across-regions-fee349b736d7).
